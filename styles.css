@@ -1,0 +1,48 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.input__wrapper {
+    position: relative;
+    width: 500px;
+    margin-inline: auto;
+    z-index: 1;
+    margin-top: 100px;
+}
+.input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+
+
+.options__wrapper {
+    position: absolute;
+    display: none;
+    top: 100%;
+    width: 100%;
+    transition: all .2s ease;
+}
+
+.item {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+
+.input__wrapper:hover 
+.options__wrapper {
+opacity: 1;
+}
