@@ -5,32 +5,20 @@
 
 //Будем использовать JavaScript API и HTTP Геокодер яндекса.
 
-function debounceAndThrottle(func, delay, limit) {
-    let timeoutId; //Управление таймерами
-    let inThrottle; //Состояние тротлинга
-  
-    return function (...args) {
-       //При каждом вызове функции сначала очищается предыдущий таймер дебаунсинга (timeoutId).
-       clearTimeout(timeoutId);
-        //Внутри функции проверяется, не включен ли уже режим защиты от тротлинга (inThrottle). 
-      if (!inThrottle) {
-        //Если не включен, функция вызывается и режим защиты от тротлинга включается. 
-        func.apply(this, args);
-        inThrottle = true;
-        // Затем устанавливается таймер, который через limit миллисекунд
-        // снова выключит режим защиты от тротлинга.
-        setTimeout(() => {
-          inThrottle = false;
-        }, limit);
-      }
-      timeoutId = setTimeout(() => {
+function debounce(func, delay) {
+    let timerId;
+    return function(...args) {
+     //При каждом вызове функции сначала очищается предыдущий таймер дебаунсинга (timeoutId).
+      clearTimeout(timerId);
+      timerId = setTimeout(() => {
         func.apply(this, args);
       }, delay);
       // Затем устанавливается новый таймер дебаунсинга. Это гарантирует,
       // что функция будет вызвана только после того, как не было ввода в течение delay миллисекунд.
     };
   }
-
+//Функция дебаунса будет вызывать переданную функцию только после того,
+// как пройдет определенное время с момента последнего вызова.
 
 const inputHandler = (e) => {
     //Если значение инпута не пустое ..
@@ -41,15 +29,13 @@ const inputHandler = (e) => {
     : optionsWrapper.style.display = 'none'
 }
 
-const debouncedAndThrottledHandleInput = debounceAndThrottle(inputHandler, 500, 2000);
-//Когда начинается ввод, функция будет вызвана с задержкой дебаунсинга (500 мс), 
+const debouncedHandleInput = debounce(inputHandler, 800);
+//Функция будет вызвана с задержкой дебаунсинга (800 мс), 
 //чтобы обработать последний ввод после окончания серии быстрых вызовов. 
-//При этом она будет ограничена защитой от тротлинга, чтобы удерживать интервал 
-//между вызовами не менее 2000 мс.
 
 let input = document.querySelector('.input');
 //При вводе в инпут обрабатываем поле
-input.addEventListener('input', debouncedAndThrottledHandleInput)
+input.addEventListener('input', debouncedHandleInput)
 
 let optionsWrapper = document.querySelector('.options__wrapper');
 optionsWrapper.addEventListener('click', (e) => {
@@ -59,28 +45,25 @@ optionsWrapper.addEventListener('click', (e) => {
     //и скрываем блок вариантов
         optionsWrapper.style.display = 'none'
     }
-}
-)
+})
 
 const init = (text) => {
-    console.log('Вызов API')
-
     ymaps.geocode(text, { results: 5})
     .then(function (res) {
-           let optionsWrapper = document.querySelector('.options__wrapper');
-           //Отчищаем блок вариантов
-           optionsWrapper.innerHTML = ''
-           //Делаем его видимым
-           optionsWrapper.style.display = 'block' 
-           for (let i = 0; i < 5; i++) {
-             //Для каждого найденного варианта создаем свой блок и добавляем в блок вариантов
+        let optionsWrapper = document.querySelector('.options__wrapper');
+        //Отчищаем блок вариантов
+        optionsWrapper.innerHTML = ''
+        //Делаем его видимым
+        optionsWrapper.style.display = 'block' 
+        for (let i = 0; i < 5; i++) {
+            //Для каждого найденного варианта создаем свой блок и добавляем в блок вариантов
             let object = res.geoObjects.get(i)
             let option = document.createElement('div');
             option.className = 'item'
             option.textContent = object.properties._data.description + ' ' + object.properties._data.name;
             optionsWrapper.appendChild(option);
-           }       
-        });
+        }       
+    });
 }
 
 
